@@ -1,0 +1,82 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/inf180504/DIY_Store_Backend/1.0.0
+  - description: Local server
+    url: http://localhost:8080
+info:
+  description: API for the DIY Store backend, accessed by the frontend
+  version: "1.0.0"
+  title: DIY Store Backend
+  contact:
+    email: jonatan.steuernagel@hpe.com
+paths:
+  /availability:
+    get:
+      summary: requests product availability
+      description: |
+        By passing the product id, you can get if the product is available for purchase
+      parameters:
+        - in: query
+          name: productId
+          description: pass a product id for which availability should be fetched
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+      responses:
+        '200':
+          description: availability of product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Availability'
+        '400':
+          description: 'bad input parameter'
+        '504':
+          description: 'database unreachable'
+  /recommendation:
+    get:
+      summary: requests product recommendation
+      description: |
+        By passing a product id, you can get recommendations for similar products
+      parameters:
+        - in: query
+          name: productId
+          description: pass a product id for which availability should be fetched
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+      responses:
+        '200':
+          description: ids of recommended products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recommendations'
+        '400':
+          description: 'bad input parameter'
+        '504':
+          description: 'recommender unreachable'
+components:
+  schemas:
+    Availability:
+      type: object
+      required:
+        - available
+      properties:
+        available:
+          type: boolean
+    Recommendations:
+      type: object
+      properties:
+        recommendations:
+          type: array
+          items:
+            type: integer
+            format: int32
+            minimum: 0
