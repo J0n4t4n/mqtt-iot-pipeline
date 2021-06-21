@@ -26,6 +26,8 @@ func main() {
 		availabilityHandler(w, r, storage)
 	})
 
+	http.HandleFunc("/health", healthHandler)
+
 	http.ListenAndServe(":8080", nil)
 
 	log.Println(storage)
@@ -55,4 +57,12 @@ func availabilityHandler(w http.ResponseWriter, r *http.Request, storage map[str
 		return
 	}
 	w.Write([]byte(strconv.FormatBool(storage[productId[0]])))
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	w.Write([]byte("OK"))
 }
