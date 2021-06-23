@@ -33,6 +33,12 @@ func main() {
 	log.Println(storage)
 }
 
+func setupResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}
+
 func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool) {
 	s := strings.Split(me.Topic(), "/")
 	s = s[1:]
@@ -46,6 +52,7 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool) {
 }
 
 func availabilityHandler(w http.ResponseWriter, r *http.Request, storage map[string]bool) {
+	setupResponse(&w, r)
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -60,6 +67,7 @@ func availabilityHandler(w http.ResponseWriter, r *http.Request, storage map[str
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
