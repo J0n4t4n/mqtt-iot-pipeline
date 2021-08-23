@@ -67,6 +67,9 @@ func setupResponse(w *http.ResponseWriter, req *http.Request) {
 }
 
 func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, reverse_mapping map[string]string) {
+	aims_path := "aims-portal"
+	//aims_path := "localhost"
+
 	s := strings.Split(me.Topic(), "/")
 	s = s[1:]
 
@@ -80,7 +83,7 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, re
 	log.Println(storage)
 
 	res, err := http.Get(
-		fmt.Sprintf("http://aims-portal:8000/portal/articles/%s?stationCode=HPE1", reverse_mapping[s[0]]),
+		fmt.Sprintf("http://%s:8000/portal/articles/%s?stationCode=HPE1", aims_path, reverse_mapping[s[0]]),
 	)
 	if err != nil {
 		log.Fatal("Crap: ", err)
@@ -120,7 +123,11 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, re
 
 	log.Println(string(jsonArticle))
 
-	resp, _ := http.Post("http://aims-portal:8000/portal/articles", "application/json", bytes.NewBuffer(jsonArticle))
+	resp, _ := http.Post(
+		fmt.Sprintf("http://%s:8000/portal/articles", aims_path),
+		"application/json",
+		bytes.NewBuffer(jsonArticle),
+	)
 	log.Println(resp)
 	// Push to Aims
 }
@@ -160,6 +167,10 @@ func checkAvailability(productId string) bool {
 	return true
 }
 
+type availabilityResponse struct {
+	Available bool `json:"available"`
+}
+
 func availabilityHandler(w http.ResponseWriter, r *http.Request, storage map[string]bool, mapping map[string]string) {
 	setupResponse(&w, r)
 	if r.Method != "GET" {
@@ -175,16 +186,22 @@ func availabilityHandler(w http.ResponseWriter, r *http.Request, storage map[str
 
 	log.Println("This product was requested: ", productId[0])
 
-	w.Write(
-		[]byte(
-			strconv.FormatBool(
-				storage[mapping[productId[0]]],
-			),
-		),
-	)
+	avaRes := availabilityResponse{
+		Available: storage[mapping[productId[0]]],
+	}
+
+	available, _ := json.Marshal(avaRes)
+	w.Write(available)
+}
+
+type recommendationResponse struct {
+	Recommendations []string `json:"recommendations"`
 }
 
 func recommendationHandler(w http.ResponseWriter, r *http.Request, storage map[string]bool, mapping map[string]string) {
+	recommender_path := "http://recommender-deployment-svc:1234"
+	//recommender_path := "http://localhost:1234"
+
 	setupResponse(&w, r)
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -200,7 +217,7 @@ func recommendationHandler(w http.ResponseWriter, r *http.Request, storage map[s
 	log.Println("This product was requested: ", productId[0])
 
 	res, err := http.Get(
-		fmt.Sprintf("http://recommender-deployment-svc:1234/recommendation?productId=%s", productId[0]),
+		fmt.Sprintf("%s/recommendation?productId=%s", recommender_path, productId[0]),
 	)
 	if err != nil {
 		log.Fatal("Crap: ", err)
@@ -221,8 +238,12 @@ func recommendationHandler(w http.ResponseWriter, r *http.Request, storage map[s
 		}
 	}
 
-	log.Println("Available: ", availableIds)
-	jsonIds, _ := json.Marshal(availableIds)
+	recRes := recommendationResponse{
+		Recommendations: availableIds,
+	}
+
+	log.Println("Available: ", recRes)
+	jsonIds, _ := json.Marshal(recRes)
 	w.Write(jsonIds)
 }
 
