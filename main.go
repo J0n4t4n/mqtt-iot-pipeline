@@ -80,7 +80,7 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, re
 	log.Println(storage)
 
 	res, err := http.Get(
-		fmt.Sprintf("http://localhost:8000/portal/articles/%s?stationCode=HPE1", reverse_mapping[s[0]]),
+		fmt.Sprintf("http://aims-portal:8000/portal/articles/%s?stationCode=HPE1", reverse_mapping[s[0]]),
 	)
 	if err != nil {
 		log.Fatal("Crap: ", err)
@@ -120,7 +120,7 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, re
 
 	log.Println(string(jsonArticle))
 
-	resp, _ := http.Post("http://localhost:8000/portal/articles", "application/json", bytes.NewBuffer(jsonArticle))
+	resp, _ := http.Post("http://aims-portal:8000/portal/articles", "application/json", bytes.NewBuffer(jsonArticle))
 	log.Println(resp)
 	// Push to Aims
 }
