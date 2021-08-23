@@ -45,11 +45,11 @@ func main() {
 		messageHandler(cl, me, storage, reverse_mapping)
 	}).Done()
 
-	http.HandleFunc("/availability", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/backend/availability", func(w http.ResponseWriter, r *http.Request) {
 		availabilityHandler(w, r, storage, mapping)
 	})
 
-	http.HandleFunc("/recommendation", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/backend/recommendation", func(w http.ResponseWriter, r *http.Request) {
 		recommendationHandler(w, r, storage, mapping)
 	})
 
