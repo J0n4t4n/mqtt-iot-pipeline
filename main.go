@@ -200,7 +200,7 @@ func recommendationHandler(w http.ResponseWriter, r *http.Request, storage map[s
 	log.Println("This product was requested: ", productId[0])
 
 	res, err := http.Get(
-		fmt.Sprintf("https://aims.ctc.ezmeral.de/recommendation?productId=%s", productId[0]),
+		fmt.Sprintf("http://recommender-deployment-svc:1234/recommendation?productId=%s", productId[0]),
 	)
 	if err != nil {
 		log.Fatal("Crap: ", err)
