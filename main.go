@@ -78,7 +78,7 @@ func messageHandler(cl mqtt.Client, me mqtt.Message, storage map[string]bool, re
 
 	productAvailable, _ := strconv.ParseFloat(string(me.Payload()), 64)
 
-	storage[s[0]] = productAvailable > 5
+	storage[s[0]] = productAvailable > 300
 
 	log.Println(storage)
 
