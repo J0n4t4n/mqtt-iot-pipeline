@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -15,9 +16,9 @@ import (
 
 func main() {
 	co := mqtt.NewClientOptions()
-	co.AddBroker("tcp://stable201.container.demo.local:10106")
-	co.SetUsername("ezmeral")
-	co.SetPassword("NMH4JieRkWb!LH79KmZW6sNwWJ!E9X")
+	co.AddBroker(os.Getenv("MOSQUITTO_URI"))
+	co.SetUsername(os.Getenv("MOSQUITTO_USER"))
+	co.SetPassword(os.Getenv("MOSQUITTO_PASSWORD"))
 
 	client := mqtt.NewClient(co)
 	<-client.Connect().Done()
